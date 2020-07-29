@@ -47,6 +47,7 @@ class BookImporterCsv extends BookImporter
             $books = [];
             while (($data = fgetcsv($handle, self::MAX_LINE_LENGTH, ","))) {
                 [$title, $author, $genre, $pages, $publisher] = $data;
+                $author = str_replace(',', '', $author);
                 $books[] = new Book($title, $author, $genre, (int)$pages, $publisher);
             }
             fclose($handle);
@@ -67,7 +68,8 @@ class BookImporterJson extends BookImporter
                 $list = json_decode($response, true, 512, JSON_THROW_ON_ERROR);
                 $books = [];
                 foreach ($list as $item) {
-                    $books[] = new Book($item['title'], $item["author"], $item["genre"], $item["pages"], $item["publisher"]);
+                    $author = str_replace(',', '', $item["author"]);
+                    $books[] = new Book($item['title'], $author, $item["genre"], $item["pages"], $item["publisher"]);
                 }
                 return $books;
             } catch (JsonException $e) {
@@ -91,6 +93,44 @@ class Book
         $this->publisher = $publisher;
     }
 
+    public function getTitle(): string
+    {
+        return $this->title;
+    }
+
+    public function getAuthor(): string
+    {
+        return $this->author;
+    }
+
+    public function getGenre(): string
+    {
+        return $this->genre;
+    }
+
+    public function getPublisher(): string
+    {
+        return $this->publisher;
+    }
+
+    public function getPages(): int
+    {
+        return $this->pages;
+    }
+
+    public function displayBook () : string
+    {
+        return "
+        <div>
+            <h3>{$this->getTitle()}</h3>
+            <p>Author: {$this->getAuthor()}</p>
+            <p>Genre: {$this->getGenre()}</p>
+            <p>Pages: {$this->getPages()}</p>
+            <p>Publisher: {$this->getPublisher()}</p>
+        </div>
+        ";
+    }
+
 }
 
 class Library
@@ -109,6 +149,22 @@ class Library
     {
         $this->books = $bookImporter->importBooks();
     }
+
+    /**
+     * @return  Book[]
+     */
+    public function searchBooks(string $name): array
+    {
+        $matchedBooks = [];
+        foreach ($this->books as $book) {
+            if(stripos($book->getTitle(), $name) !== false) {
+                $matchedBooks[] = $book;
+            }
+        }
+        return $matchedBooks;
+    }
+
+
 }
 
 if (isset($_SESSION['library'])) {
@@ -124,6 +180,34 @@ if (isset($_SESSION['library'])) {
 }
 
 
+if(isset($_POST['name'])) {
+    $name = htmlspecialchars(trim($_POST['name']));
+    $matchedBooks = $library->searchBooks($name);
+}
+?>
 
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Library</title>
+</head>
+<body>
 
-echo "Hi";
+<form action="<?=$_SERVER['PHP_SELF'];?>" method="post">
+    <label>Search for books:<input type="text" name="name" placeholder="Name/partial name"></label>
+    <button type="submit">Search</button>
+    <?php
+        if(isset($matchedBooks) && !empty($matchedBooks)){
+            foreach ($matchedBooks as $book) {
+                echo $book->displayBook();
+            }
+        }
+    ?>
+</form>
+
+</body>
+</html>
