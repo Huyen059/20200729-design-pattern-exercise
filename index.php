@@ -118,7 +118,7 @@ class Book
         return $this->pages;
     }
 
-    public function displayBook () : string
+    public function displayBook(): string
     {
         return "
         <div>
@@ -131,6 +131,72 @@ class Book
         ";
     }
 
+}
+
+interface SearchBookCriteria {
+    /**
+     * @param Library $library
+     * @param string $searchCriterion
+     * @return Book[]
+     */
+    public function searchBooks(Library $library, string $searchCriterion) : array;
+}
+
+class PartialTitleSearch implements SearchBookCriteria {
+    /**
+     * @param Library $library
+     * @param string $searchCriterion
+     * @return Book[]
+     */
+    public function searchBooks(Library $library, string $searchCriterion): array
+    {
+        // TODO: Implement searchBooks() method.
+        $matchedBooks = [];
+        foreach ($library->getBooks() as $book) {
+            if (stripos($book->getTitle(), $searchCriterion) !== false) {
+                $matchedBooks[] = $book;
+            }
+        }
+        return $matchedBooks;
+    }
+}
+
+class GenreSearch implements SearchBookCriteria {
+    /**
+     * @param Library $library
+     * @param string $searchCriterion
+     * @return Book[]
+     */
+    public function searchBooks(Library $library, string $searchCriterion): array
+    {
+        // TODO: Implement searchBooks() method.
+        $matchedBooks = [];
+        foreach ($library->getBooks() as $book) {
+            if ($book->getGenre() === $searchCriterion) {
+                $matchedBooks[] = $book;
+            }
+        }
+        return $matchedBooks;
+    }
+}
+
+class PublisherSearch implements SearchBookCriteria {
+    /**
+     * @param Library $library
+     * @param string $searchCriterion
+     * @return Book[]
+     */
+    public function searchBooks(Library $library, string $searchCriterion): array
+    {
+        // TODO: Implement searchBooks() method.
+        $matchedBooks = [];
+        foreach ($library->getBooks() as $book) {
+            if ($book->getPublisher() === $searchCriterion) {
+                $matchedBooks[] = $book;
+            }
+        }
+        return $matchedBooks;
+    }
 }
 
 class Library
@@ -150,27 +216,9 @@ class Library
         $this->books = $bookImporter->importBooks();
     }
 
-
-
-
-}
-
-class PartialBookSearch extends Library {
-    /**
-     * @param Library $library
-     * @param string $name
-     * @return Book[]
-     */
-    public function searchBooks(Library $library, string $name): array
+    public function searchBooks(SearchBookCriteria $searchBookCriteria, string $searchCriterion)
     {
-        $matchedBooks = [];
-        foreach ($library->getBooks() as $book) {
-            if(stripos($book->getTitle(), $name) !== false) {
-                $matchedBooks[] = $book;
-            }
-        }
-        $this->books = $matchedBooks;
-        return $matchedBooks;
+        return $searchBookCriteria->searchBooks($this, $searchCriterion);
     }
 }
 
@@ -186,12 +234,21 @@ if (isset($_SESSION['library'])) {
     $_SESSION['library'] = $library;
 }
 
-
-if(isset($_POST['name'])) {
-    $name = htmlspecialchars(trim($_POST['name']));
-    $partialBookSearch = new PartialBookSearch();
-    $matchedBooks = $partialBookSearch->searchBooks($library, $name);
+if (isset($_POST['name'])) {
+    $searchText = htmlspecialchars(trim($_POST['name']));
+    $matchedBooks = $library->searchBooks(new PartialTitleSearch(), $searchText);
 }
+
+if (isset($_POST['genre'])) {
+    $searchText = $_POST['genre'];
+    $matchedBooks = $library->searchBooks(new GenreSearch(), $searchText);
+}
+
+if (isset($_POST['publisher'])) {
+    $searchText = $_POST['publisher'];
+    $matchedBooks = $library->searchBooks(new PublisherSearch(), $searchText);
+}
+
 ?>
 
 <!doctype html>
@@ -205,17 +262,65 @@ if(isset($_POST['name'])) {
 </head>
 <body>
 
-<form action="<?=$_SERVER['PHP_SELF'];?>" method="post">
+<form action="<?= $_SERVER['PHP_SELF']; ?>" method="post">
     <label>Search for books:<input type="text" name="name" placeholder="Name/partial name"></label>
     <button type="submit">Search</button>
-    <?php
-        if(isset($matchedBooks) && !empty($matchedBooks)){
-            foreach ($matchedBooks as $book) {
-                echo $book->displayBook();
-            }
-        }
-    ?>
 </form>
+
+<form action="<?= $_SERVER['PHP_SELF']; ?>" method="post">
+<label>Genre:
+    <select name="genre">
+        <option disabled selected value="">Choose a genre</option>
+        <?php
+        $genres = [];
+        foreach ($library->getBooks() as $book) {
+            $genres[] = $book->getGenre();
+        }
+        foreach (array_unique($genres) as $genre) {
+            $option = "<option value=\"{$genre}\" ";
+            if(isset($_POST['genre']) && $_POST['genre'] === $genre) {
+                $option .= "selected";
+            }
+            $option .= ">{$genre}</option>";
+            echo $option;
+        }
+        ?>
+    </select>
+</label>
+<button type="submit">Search</button>
+</form>
+
+<form action="<?= $_SERVER['PHP_SELF']; ?>" method="post">
+    <label>Genre:
+        <select name="publisher">
+            <option disabled selected value="">Choose a publisher</option>
+            <?php
+            $publishers = [];
+            foreach ($library->getBooks() as $book) {
+                $publishers[] = $book->getPublisher();
+            }
+            foreach (array_unique($publishers) as $publisher) {
+                $option = "<option value=\"{$publisher}\" ";
+                if(isset($_POST['publisher']) && $_POST['publisher'] === $publisher) {
+                    $option .= "selected";
+                }
+                $option .= ">{$publisher}</option>";
+                echo $option;
+            }
+            ?>
+        </select>
+    </label>
+    <button type="submit">Search</button>
+</form>
+
+
+<?php
+if (isset($matchedBooks) && !empty($matchedBooks)) {
+    foreach ($matchedBooks as $book) {
+        echo $book->displayBook();
+    }
+}
+?>
 
 </body>
 </html>
