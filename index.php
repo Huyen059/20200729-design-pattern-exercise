@@ -138,7 +138,7 @@ class Library
     /**
      * @var Book[]
      */
-    private array $books = [];
+    protected array $books = [];
 
     public function getBooks(): array
     {
@@ -150,21 +150,28 @@ class Library
         $this->books = $bookImporter->importBooks();
     }
 
+
+
+
+}
+
+class PartialBookSearch extends Library {
     /**
-     * @return  Book[]
+     * @param Library $library
+     * @param string $name
+     * @return Book[]
      */
-    public function searchBooks(string $name): array
+    public function searchBooks(Library $library, string $name): array
     {
         $matchedBooks = [];
-        foreach ($this->books as $book) {
+        foreach ($library->getBooks() as $book) {
             if(stripos($book->getTitle(), $name) !== false) {
                 $matchedBooks[] = $book;
             }
         }
+        $this->books = $matchedBooks;
         return $matchedBooks;
     }
-
-
 }
 
 if (isset($_SESSION['library'])) {
@@ -182,7 +189,8 @@ if (isset($_SESSION['library'])) {
 
 if(isset($_POST['name'])) {
     $name = htmlspecialchars(trim($_POST['name']));
-    $matchedBooks = $library->searchBooks($name);
+    $partialBookSearch = new PartialBookSearch();
+    $matchedBooks = $partialBookSearch->searchBooks($library, $name);
 }
 ?>
 
