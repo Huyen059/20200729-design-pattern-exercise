@@ -10,7 +10,6 @@ const BOOK_FORMAT = 'csv';
 
 abstract class BookImporter
 {
-    public const MAX_LINE_LENGTH = 1000;
     private string $path, $filename;
 
     /**
@@ -47,7 +46,8 @@ class BookImporterCsv extends BookImporter
         if (($handle = fopen((string)$file, 'rb'))) {
             $books = [];
             while (($data = fgetcsv($handle, self::MAX_LINE_LENGTH, ","))) {
-                $books[] = new Book($data[0], $data[1], $data[2], $data[3], $data[4]);
+                [$title, $author, $genre, $pages, $publisher] = $data;
+                $books[] = new Book($title, $author, $genre, (int)$pages, $publisher);
             }
             fclose($handle);
         }
@@ -79,9 +79,10 @@ class BookImporterJson extends BookImporter
 
 class Book
 {
-    private string $title, $author, $genre, $pages, $publisher;
+    private string $title, $author, $genre, $publisher;
+    private int $pages;
 
-    public function __construct(string $title = '', string $author = '', string $genre = '', string $pages = '', string $publisher = '')
+    public function __construct(string $title, string $author, string $genre, int $pages, string $publisher)
     {
         $this->title = $title;
         $this->author = $author;
@@ -89,87 +90,6 @@ class Book
         $this->pages = $pages;
         $this->publisher = $publisher;
     }
-
-    /**
-     * @return string
-     */
-    public function getTitle(): string
-    {
-        return $this->title;
-    }
-
-    /**
-     * @param string $title
-     */
-    public function setTitle(string $title): void
-    {
-        $this->title = $title;
-    }
-
-    /**
-     * @return string
-     */
-    public function getAuthor(): string
-    {
-        return $this->author;
-    }
-
-    /**
-     * @param string $author
-     */
-    public function setAuthor(string $author): void
-    {
-        $this->author = $author;
-    }
-
-    /**
-     * @return string
-     */
-    public function getGenre(): string
-    {
-        return $this->genre;
-    }
-
-    /**
-     * @param string $genre
-     */
-    public function setGenre(string $genre): void
-    {
-        $this->genre = $genre;
-    }
-
-    /**
-     * @return string
-     */
-    public function getPages(): string
-    {
-        return $this->pages;
-    }
-
-    /**
-     * @param string $pages
-     */
-    public function setPages(string $pages): void
-    {
-        $this->pages = $pages;
-    }
-
-    /**
-     * @return string
-     */
-    public function getPublisher(): string
-    {
-        return $this->publisher;
-    }
-
-    /**
-     * @param string $publisher
-     */
-    public function setPublisher(string $publisher): void
-    {
-        $this->publisher = $publisher;
-    }
-
 
 }
 
