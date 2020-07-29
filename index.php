@@ -6,7 +6,7 @@ error_reporting(E_ALL);
 
 session_start();
 
-const BOOK_FORMAT = 'csv';
+const BOOK_FORMAT = 'json';
 
 abstract class BookImporter
 {
@@ -68,8 +68,9 @@ class BookImporterJson extends BookImporter
                 $list = json_decode($response, true, 512, JSON_THROW_ON_ERROR);
                 $books = [];
                 foreach ($list as $item) {
-                    $author = str_replace(',', '', $item["author"]);
-                    $books[] = new Book($item['title'], $author, $item["genre"], $item["pages"], $item["publisher"], new OpenState());
+                    [$title, $author, $genre, $pages, $publisher] = $item;
+                    $author = str_replace(',', '', $author);
+                    $books[] = new Book($title, $author, $genre, (int)$pages, $publisher, new OpenState());
                 }
                 return $books;
             } catch (JsonException $e) {
@@ -122,6 +123,12 @@ class Book
 
     public function displayBook(): string
     {
+        $state = $this->currentState->getState();
+        $status = 'N/A';
+        if($state instanceof OpenState) {
+            $status = 'Open';
+        }
+
         return "
         <div>
             <h3>{$this->getTitle()}</h3>
@@ -129,6 +136,7 @@ class Book
             <p>Genre: {$this->getGenre()}</p>
             <p>Pages: {$this->getPages()}</p>
             <p>Publisher: {$this->getPublisher()}</p>
+            <p>Status: {$status}</p>
         </div>
         ";
     }
@@ -214,6 +222,14 @@ class CurrentState {
     public function __construct(State $state)
     {
         $this->transitionTo($state);
+    }
+
+    /**
+     * @return State
+     */
+    public function getState(): State
+    {
+        return $this->state;
     }
 
     public function transitionTo(State $state): void
