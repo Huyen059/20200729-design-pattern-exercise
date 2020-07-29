@@ -48,7 +48,7 @@ class BookImporterCsv extends BookImporter
             while (($data = fgetcsv($handle, self::MAX_LINE_LENGTH, ","))) {
                 [$title, $author, $genre, $pages, $publisher] = $data;
                 $author = str_replace(',', '', $author);
-                $books[] = new Book($title, $author, $genre, (int)$pages, $publisher);
+                $books[] = new Book($title, $author, $genre, (int)$pages, $publisher, new OpenState());
             }
             fclose($handle);
         }
@@ -69,7 +69,7 @@ class BookImporterJson extends BookImporter
                 $books = [];
                 foreach ($list as $item) {
                     $author = str_replace(',', '', $item["author"]);
-                    $books[] = new Book($item['title'], $author, $item["genre"], $item["pages"], $item["publisher"]);
+                    $books[] = new Book($item['title'], $author, $item["genre"], $item["pages"], $item["publisher"], new OpenState());
                 }
                 return $books;
             } catch (JsonException $e) {
@@ -83,14 +83,16 @@ class Book
 {
     private string $title, $author, $genre, $publisher;
     private int $pages;
+    private CurrentState $currentState;
 
-    public function __construct(string $title, string $author, string $genre, int $pages, string $publisher)
+    public function __construct(string $title, string $author, string $genre, int $pages, string $publisher, State $state)
     {
         $this->title = $title;
         $this->author = $author;
         $this->genre = $genre;
         $this->pages = $pages;
         $this->publisher = $publisher;
+        $this->currentState = new CurrentState($state);
     }
 
     public function getTitle(): string
@@ -198,6 +200,221 @@ class PublisherSearch implements SearchBookCriteria {
         return $matchedBooks;
     }
 }
+
+class CurrentState {
+    /**
+     * @var State;
+     */
+    private $state;
+
+    /**
+     * CurrentState constructor.
+     * @param State $state
+     */
+    public function __construct(State $state)
+    {
+        $this->transitionTo($state);
+    }
+
+    public function transitionTo(State $state): void
+    {
+        $this->state = $state;
+        $this->state->setCurrentState($this);
+    }
+
+    public function borrow(): void
+    {
+        $this->state->borrowBook();
+    }
+
+    public function buy(): void
+    {
+        $this->state->buyBook();
+    }
+
+    public function reportLost(): void
+    {
+        $this->state->setBookToLost();
+    }
+
+    public function setOvertime(): void
+    {
+        $this->state->setBookToOvertime();
+    }
+
+    public function return(): void
+    {
+        $this->state->returnBook();
+    }
+}
+
+abstract class State {
+    /**
+     * @var CurrentState
+     */
+    protected $currentState;
+
+    /**
+     * @param CurrentState $currentState
+     */
+    public function setCurrentState(CurrentState $currentState): void
+    {
+        $this->currentState = $currentState;
+    }
+    abstract public function borrowBook(): void;
+    abstract public function buyBook(): void;
+    abstract public function setBookToLost(): void;
+    abstract public function setBookToOvertime(): void;
+    abstract public function returnBook(): void;
+}
+
+class OpenState extends State {
+    public function borrowBook(): void
+    {
+        echo "book borrowed";
+        $this->currentState->transitionTo(new LentState());
+    }
+
+    public function buyBook(): void
+    {
+        echo "book sold";
+        $this->currentState->transitionTo(new SoldState());
+    }
+
+    public function setBookToLost(): void
+    {
+
+    }
+
+    public function setBookToOvertime(): void
+    {
+
+    }
+
+    public function returnBook(): void
+    {
+
+    }
+}
+
+class LentState extends State {
+    public function borrowBook(): void
+    {
+
+    }
+
+    public function buyBook(): void
+    {
+
+    }
+
+    public function setBookToLost(): void
+    {
+        echo "book lost";
+        $this->currentState->transitionTo(new LostState());
+    }
+
+    public function setBookToOvertime(): void
+    {
+        echo "book overtime";
+        $this->currentState->transitionTo(new OvertimeState());
+    }
+
+    public function returnBook(): void
+    {
+        echo "book back available";
+        $this->currentState->transitionTo(new OpenState());
+    }
+}
+
+class OvertimeState extends State {
+    public function borrowBook(): void
+    {
+
+    }
+
+    public function buyBook(): void
+    {
+
+    }
+
+    public function setBookToLost(): void
+    {
+        echo "book lost";
+        $this->currentState->transitionTo(new LostState());
+    }
+
+    public function setBookToOvertime(): void
+    {
+
+    }
+
+    public function returnBook(): void
+    {
+        echo "book back available";
+        $this->currentState->transitionTo(new OpenState());
+    }
+}
+
+class LostState extends State {
+    public function borrowBook(): void
+    {
+
+    }
+
+    public function buyBook(): void
+    {
+
+    }
+
+    public function setBookToLost(): void
+    {
+
+    }
+
+    public function setBookToOvertime(): void
+    {
+
+    }
+
+    public function returnBook(): void
+    {
+
+    }
+}
+
+class SoldState extends State {
+    public function borrowBook(): void
+    {
+
+    }
+
+    public function buyBook(): void
+    {
+
+    }
+
+    public function setBookToLost(): void
+    {
+
+    }
+
+    public function setBookToOvertime(): void
+    {
+
+    }
+
+    public function returnBook(): void
+    {
+
+    }
+}
+
+//$currentState = new CurrentState(new LentState());
+//echo "borrow here <br>";
+//$currentState->borrow();
+//echo "return here <br>";
+//$currentState->return();
 
 class Library
 {
