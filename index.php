@@ -216,9 +216,27 @@ class Library
         $this->books = $bookImporter->importBooks();
     }
 
-    public function searchBooks(SearchBookCriteria $searchBookCriteria, string $searchCriterion)
+    /**
+     * @param SearchBookCriteria $searchBookCriteria
+     * @param string $searchCriterion
+     * @return Book[]
+     */
+    public function searchBooks(SearchBookCriteria $searchBookCriteria, string $searchCriterion): array
     {
         return $searchBookCriteria->searchBooks($this, $searchCriterion);
+    }
+
+    /**
+     * @param Book[]
+     * @return int
+     */
+    static function getPages (array $books): int
+    {
+        $pages = 0;
+        foreach ($books as $book) {
+            $pages += $book->getPages();
+        }
+        return $pages;
     }
 }
 
@@ -262,9 +280,17 @@ if (isset($_POST['publisher'])) {
 </head>
 <body>
 
+<?php
+if(!empty($_POST['name']) || !empty($_POST['genre']) || !empty($_POST['publisher'])) {
+    echo "Total number of pages: " . Library::getPages($matchedBooks);
+} else {
+    echo "Total number of pages: " . Library::getPages($library->getBooks());
+}
+?>
+
 <form action="<?= $_SERVER['PHP_SELF']; ?>" method="post">
     <label>Search for books:<input type="text" name="name" placeholder="Name/partial name"></label>
-    <button type="submit">Search</button>
+    <button type="submit" name="submit">Search</button>
 </form>
 
 <form action="<?= $_SERVER['PHP_SELF']; ?>" method="post">
@@ -287,7 +313,7 @@ if (isset($_POST['publisher'])) {
         ?>
     </select>
 </label>
-<button type="submit">Search</button>
+<button type="submit" name="submit">Search</button>
 </form>
 
 <form action="<?= $_SERVER['PHP_SELF']; ?>" method="post">
@@ -310,8 +336,9 @@ if (isset($_POST['publisher'])) {
             ?>
         </select>
     </label>
-    <button type="submit">Search</button>
+    <button type="submit" name="submit">Search</button>
 </form>
+
 
 
 <?php
