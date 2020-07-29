@@ -1,10 +1,10 @@
 <?php
-
 declare(strict_types=1);
 ini_set('display_errors', "1");
 ini_set('display_startup_errors', "1");
 error_reporting(E_ALL);
 
+session_start();
 
 const BOOK_FORMAT = 'csv';
 
@@ -100,18 +100,30 @@ class Library
      */
     private array $books = [];
 
+    public function getBooks(): array
+    {
+        return $this->books;
+    }
+
     public function importBooks(BookImporter $bookImporter): void
     {
         $this->books = $bookImporter->importBooks();
     }
 }
 
-$library = new Library();
-if (BOOK_FORMAT === 'csv') {
-    $library->importBooks(new BookImporterCsv("resources/", "books.csv"));
+if (isset($_SESSION['library'])) {
+    $library = $_SESSION['library'];
 } else {
-    $library->importBooks(new BookImporterJson("resources/", "books.json"));
+    $library = new Library();
+    if (BOOK_FORMAT === 'csv') {
+        $library->importBooks(new BookImporterCsv("resources/", "books.csv"));
+    } else {
+        $library->importBooks(new BookImporterJson("resources/", "books.json"));
+    }
+    $_SESSION['library'] = $library;
 }
+
+
 
 
 echo "Hi";
