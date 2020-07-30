@@ -423,11 +423,13 @@ class Library
      * @param Book[]
      * @return int
      */
-    static function getPages (array $books): int
+    public static function getPages (array $books): int
     {
         $pages = 0;
         foreach ($books as $book) {
-            $pages += $book->getPages();
+            if($book->getContext()->getState()->isVisible()){
+                $pages += $book->getPages();
+            }
         }
         return $pages;
     }
