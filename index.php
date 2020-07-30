@@ -286,160 +286,74 @@ abstract class State {
     {
         $this->context = $context;
     }
-    abstract public function borrowBook(): void;
-    abstract public function buyBook(): void;
-    abstract public function setBookToLost(): void;
-    abstract public function setBookToOvertime(): void;
-    abstract public function returnBook(): void;
+    public function borrowBook(): void
+    {
+        throw new \RuntimeException('Sorry. Your request can\'t be done.');
+    }
+    public function buyBook(): void
+    {
+        throw new \RuntimeException('Sorry. Your request can\'t be done.');
+    }
+    public function setBookToLost(): void
+    {
+        throw new \RuntimeException('Sorry. Your request can\'t be done.');
+    }
+    public function setBookToOvertime(): void
+    {
+        throw new \RuntimeException('Sorry. Your request can\'t be done.');
+    }
+    public function returnBook(): void
+    {
+        throw new \RuntimeException('Sorry. Your request can\'t be done.');
+    }
 }
 
 class OpenState extends State {
     public function borrowBook(): void
     {
-        echo "book borrowed";
         $this->context->transitionTo(new LentState());
     }
 
     public function buyBook(): void
     {
-        echo "book sold";
         $this->context->transitionTo(new SoldState());
-    }
-
-    public function setBookToLost(): void
-    {
-
-    }
-
-    public function setBookToOvertime(): void
-    {
-
-    }
-
-    public function returnBook(): void
-    {
-
     }
 }
 
 class LentState extends State {
-    public function borrowBook(): void
-    {
-
-    }
-
-    public function buyBook(): void
-    {
-
-    }
-
     public function setBookToLost(): void
     {
-        echo "book lost";
         $this->context->transitionTo(new LostState());
     }
 
     public function setBookToOvertime(): void
     {
-        echo "book overtime";
         $this->context->transitionTo(new OvertimeState());
     }
 
     public function returnBook(): void
     {
-        echo "book back available";
         $this->context->transitionTo(new OpenState());
     }
 }
 
 class OvertimeState extends State {
-    public function borrowBook(): void
-    {
-
-    }
-
-    public function buyBook(): void
-    {
-
-    }
-
     public function setBookToLost(): void
     {
-        echo "book lost";
         $this->context->transitionTo(new LostState());
-    }
-
-    public function setBookToOvertime(): void
-    {
-
     }
 
     public function returnBook(): void
     {
-        echo "book back available";
         $this->context->transitionTo(new OpenState());
     }
 }
 
 class LostState extends State {
-    public function borrowBook(): void
-    {
-
-    }
-
-    public function buyBook(): void
-    {
-
-    }
-
-    public function setBookToLost(): void
-    {
-
-    }
-
-    public function setBookToOvertime(): void
-    {
-
-    }
-
-    public function returnBook(): void
-    {
-
-    }
 }
 
 class SoldState extends State {
-    public function borrowBook(): void
-    {
-
-    }
-
-    public function buyBook(): void
-    {
-
-    }
-
-    public function setBookToLost(): void
-    {
-
-    }
-
-    public function setBookToOvertime(): void
-    {
-
-    }
-
-    public function returnBook(): void
-    {
-
-    }
 }
-
-//$context = new Context(new LentState());
-//echo "borrow here <br>";
-//$context->borrow();
-//echo "return here <br>";
-//$context->return();
 
 class Library
 {
