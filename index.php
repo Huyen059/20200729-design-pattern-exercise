@@ -131,7 +131,8 @@ class Book
 
     public function displayBook(): string
     {
-        $status = get_class($this->context->getState());
+        $state = $this->context->getState();
+        $status = get_class($state);
         $title = urlencode($this->getTitle());
 
         return "
@@ -285,6 +286,18 @@ abstract class State {
     public function setContext(Context $context): void
     {
         $this->context = $context;
+    }
+    public function isVisible():bool
+    {
+        switch (get_class($this)){
+            case 'OpenState':
+            case 'LentState':
+            case 'OvertimeState':
+                return true;
+            case 'LostState':
+            case 'SoldState':
+                return false;
+        }
     }
     public function borrowBook(): void
     {
@@ -530,8 +543,7 @@ if(!empty($_POST['name']) || !empty($_POST['genre']) || !empty($_POST['publisher
 <?php
 if (isset($matchedBooks) && !empty($matchedBooks)) {
     foreach ($matchedBooks as $book) {
-        $status = get_class($book->getContext()->getState());
-        if ($status !== 'LostState' && $status !== 'SoldState'){
+        if ($book->getContext()->getState()->isVisible()){
             echo $book->displayBook();
         }
 
