@@ -68,9 +68,7 @@ class BookImporterJson extends BookImporter
                 $list = json_decode($response, true, 512, JSON_THROW_ON_ERROR);
                 $books = [];
                 foreach ($list as $item) {
-                    [$title, $author, $genre, $pages, $publisher] = $item;
-                    $author = str_replace(',', '', $author);
-                    $books[] = new Book($title, $author, $genre, (int)$pages, $publisher, new OpenState());
+                    $books[] = new Book($item['title'], str_replace(',', '', $item['author']), $item['genre'], (int)$item['pages'], $item['publisher'], new OpenState());
                 }
                 return $books;
             } catch (JsonException $e) {
@@ -84,7 +82,7 @@ class Book
 {
     private string $title, $author, $genre, $publisher;
     private int $pages;
-    private CurrentState $currentState;
+    private Context $context;
 
     public function __construct(string $title, string $author, string $genre, int $pages, string $publisher, State $state)
     {
@@ -93,7 +91,7 @@ class Book
         $this->genre = $genre;
         $this->pages = $pages;
         $this->publisher = $publisher;
-        $this->currentState = new CurrentState($state);
+        $this->context = new Context($state);
     }
 
     public function getTitle(): string
@@ -121,13 +119,20 @@ class Book
         return $this->pages;
     }
 
+    public function getContext(): Context
+    {
+        return $this->context;
+    }
+
+    public function setContext(Context $context): void
+    {
+        $this->context = $context;
+    }
+
     public function displayBook(): string
     {
-        $state = $this->currentState->getState();
-        $status = 'N/A';
-        if($state instanceof OpenState) {
-            $status = 'Open';
-        }
+        $status = get_class($this->context->getState());
+        $title = urlencode($this->getTitle());
 
         return "
         <div>
@@ -137,6 +142,10 @@ class Book
             <p>Pages: {$this->getPages()}</p>
             <p>Publisher: {$this->getPublisher()}</p>
             <p>Status: {$status}</p>
+            <a href=\"?title={$title}&state=lent\">Borrow</a>
+            <a href=\"?title={$title}&state=sold\">Buy</a>
+            <a href=\"?title={$title}&state=lost\">Report lost</a>
+            <a href=\"?title={$title}&state=open\">Return</a>
         </div>
         ";
     }
@@ -209,7 +218,7 @@ class PublisherSearch implements SearchBookCriteria {
     }
 }
 
-class CurrentState {
+class Context {
     /**
      * @var State;
      */
@@ -235,7 +244,7 @@ class CurrentState {
     public function transitionTo(State $state): void
     {
         $this->state = $state;
-        $this->state->setCurrentState($this);
+        $this->state->setContext($this);
     }
 
     public function borrow(): void
@@ -266,16 +275,16 @@ class CurrentState {
 
 abstract class State {
     /**
-     * @var CurrentState
+     * @var Context
      */
-    protected $currentState;
+    protected Context $context;
 
     /**
-     * @param CurrentState $currentState
+     * @param Context $context
      */
-    public function setCurrentState(CurrentState $currentState): void
+    public function setContext(Context $context): void
     {
-        $this->currentState = $currentState;
+        $this->context = $context;
     }
     abstract public function borrowBook(): void;
     abstract public function buyBook(): void;
@@ -288,13 +297,13 @@ class OpenState extends State {
     public function borrowBook(): void
     {
         echo "book borrowed";
-        $this->currentState->transitionTo(new LentState());
+        $this->context->transitionTo(new LentState());
     }
 
     public function buyBook(): void
     {
         echo "book sold";
-        $this->currentState->transitionTo(new SoldState());
+        $this->context->transitionTo(new SoldState());
     }
 
     public function setBookToLost(): void
@@ -327,19 +336,19 @@ class LentState extends State {
     public function setBookToLost(): void
     {
         echo "book lost";
-        $this->currentState->transitionTo(new LostState());
+        $this->context->transitionTo(new LostState());
     }
 
     public function setBookToOvertime(): void
     {
         echo "book overtime";
-        $this->currentState->transitionTo(new OvertimeState());
+        $this->context->transitionTo(new OvertimeState());
     }
 
     public function returnBook(): void
     {
         echo "book back available";
-        $this->currentState->transitionTo(new OpenState());
+        $this->context->transitionTo(new OpenState());
     }
 }
 
@@ -357,7 +366,7 @@ class OvertimeState extends State {
     public function setBookToLost(): void
     {
         echo "book lost";
-        $this->currentState->transitionTo(new LostState());
+        $this->context->transitionTo(new LostState());
     }
 
     public function setBookToOvertime(): void
@@ -368,7 +377,7 @@ class OvertimeState extends State {
     public function returnBook(): void
     {
         echo "book back available";
-        $this->currentState->transitionTo(new OpenState());
+        $this->context->transitionTo(new OpenState());
     }
 }
 
@@ -426,11 +435,11 @@ class SoldState extends State {
     }
 }
 
-//$currentState = new CurrentState(new LentState());
+//$context = new Context(new LentState());
 //echo "borrow here <br>";
-//$currentState->borrow();
+//$context->borrow();
 //echo "return here <br>";
-//$currentState->return();
+//$context->return();
 
 class Library
 {
@@ -457,6 +466,16 @@ class Library
     public function searchBooks(SearchBookCriteria $searchBookCriteria, string $searchCriterion): array
     {
         return $searchBookCriteria->searchBooks($this, $searchCriterion);
+    }
+
+    public static function searchABook(Library $library, string $title): Book
+    {
+        // @Todo: make function here
+        foreach ($library->getBooks() as $book) {
+            if ($title === $book->getTitle()) {
+                return $book;
+            }
+        }
     }
 
     /**
@@ -498,6 +517,27 @@ if (isset($_POST['genre'])) {
 if (isset($_POST['publisher'])) {
     $searchText = $_POST['publisher'];
     $matchedBooks = $library->searchBooks(new PublisherSearch(), $searchText);
+}
+
+if (isset($_GET['state'])){
+    $book = Library::searchABook($library, $_GET['title']);
+    $context = $book->getContext();
+    switch ($_GET['state']) {
+        case 'lent':
+            $context->borrow();
+            break;
+        case 'sold':
+            $context->buy();
+            break;
+        case 'open':
+            $context->return();
+            break;
+        case 'lost':
+            $context->reportLost();
+            break;
+    }
+    $book->setContext($context);
+    echo $book->displayBook();
 }
 
 ?>
@@ -573,11 +613,14 @@ if(!empty($_POST['name']) || !empty($_POST['genre']) || !empty($_POST['publisher
 </form>
 
 
-
 <?php
 if (isset($matchedBooks) && !empty($matchedBooks)) {
     foreach ($matchedBooks as $book) {
-        echo $book->displayBook();
+        $status = get_class($book->getContext()->getState());
+        if ($status !== 'LostState' && $status !== 'SoldState'){
+            echo $book->displayBook();
+        }
+
     }
 }
 ?>
