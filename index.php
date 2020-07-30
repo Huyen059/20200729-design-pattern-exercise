@@ -135,7 +135,7 @@ class Book
         $status = get_class($state);
         $title = urlencode($this->getTitle());
 
-        return "
+        $display = "
         <div>
             <h3>{$this->getTitle()}</h3>
             <p>Author: {$this->getAuthor()}</p>
@@ -143,12 +143,26 @@ class Book
             <p>Pages: {$this->getPages()}</p>
             <p>Publisher: {$this->getPublisher()}</p>
             <p>Status: {$status}</p>
-            <a href=\"?title={$title}&state=lent\">Borrow</a>
-            <a href=\"?title={$title}&state=sold\">Buy</a>
-            <a href=\"?title={$title}&state=lost\">Report lost</a>
-            <a href=\"?title={$title}&state=open\">Return</a>
         </div>
         ";
+        switch ($status) {
+            case 'OpenState':
+                $display .= "<div>
+                    <a href=\"?title={$title}&state=lent\">Borrow</a>
+                    <a href=\"?title={$title}&state=sold\">Buy</a></div>";
+                break;
+            case 'LentState':
+                $display .= "<div>
+                    <a href=\"?title={$title}&state=lost\">Report lost</a>
+                    <a href=\"?title={$title}&state=open\">Return</a></div>";
+                break;
+            case 'LostState':
+            case 'SoldState':
+                $display = '';
+                break;
+        }
+
+        return $display;
     }
 
 }
@@ -464,7 +478,6 @@ if (isset($_GET['state'])){
             break;
     }
     $book->setContext($context);
-    echo $book->displayBook();
 }
 
 ?>
@@ -543,9 +556,7 @@ if(!empty($_POST['name']) || !empty($_POST['genre']) || !empty($_POST['publisher
 <?php
 if (isset($matchedBooks) && !empty($matchedBooks)) {
     foreach ($matchedBooks as $book) {
-        if ($book->getContext()->getState()->isVisible()){
             echo $book->displayBook();
-        }
 
     }
 }
