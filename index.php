@@ -532,7 +532,7 @@ if(!empty($_POST['name']) || !empty($_POST['genre']) || !empty($_POST['publisher
 </form>
 
 <form action="<?= $_SERVER['PHP_SELF']; ?>" method="post">
-    <label>Genre:
+    <label>Publisher:
         <select name="publisher">
             <option disabled selected value="">Choose a publisher</option>
             <?php
