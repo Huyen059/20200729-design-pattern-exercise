@@ -59,7 +59,7 @@ class Library {
      * @param string $searchCriterion
      * @return Book[]
      */
-    public function searchBook(SearchBook $searchBook, string $searchCriterion): array
+    public function searchBook(SearchBookCriteria $searchBook, string $searchCriterion): array
     {
         // Todo: throw error when book not found
         $matchedBooks = $searchBook->searchBook($this, $searchCriterion);

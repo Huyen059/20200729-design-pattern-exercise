@@ -4,22 +4,19 @@ ini_set('display_errors', "1");
 ini_set('display_startup_errors', "1");
 error_reporting(E_ALL);
 
-class PartialBookSearch extends SearchBookCriteria {
+class PublisherSearch extends SearchBookCriteria
+{
     /**
-     * SearchBook
      * @param Library $library
      * @param string $searchCriterion
      * @return Book[]
      */
     public function searchBook(Library $library, string $searchCriterion): array
     {
-        $matchedBooks = [];
-        foreach($library->getBooks() as $book) {
-            if(stripos($book->getTitle(), $searchCriterion) !== false) {
-                $matchedBooks[] = $book;
+        foreach ($library->getPublishers() as $publisher) {
+            if($publisher->getPublisher() === $searchCriterion) {
+                return $publisher->getBooks();
             }
         }
-        $this->books = $matchedBooks;
-        return $matchedBooks;
     }
 }

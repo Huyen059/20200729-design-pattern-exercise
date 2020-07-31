@@ -4,7 +4,7 @@ ini_set('display_errors', "1");
 ini_set('display_startup_errors', "1");
 error_reporting(E_ALL);
 
-abstract class SearchBook implements \Countable
+abstract class SearchBookCriteria
 {
     /**
      * @var Book[]
@@ -15,6 +15,7 @@ abstract class SearchBook implements \Countable
      * SearchBook
      * @param Library $library
      * @param string $searchCriterion
+     * @return Book[]
      */
     abstract public function searchBook(Library $library, string $searchCriterion): array;
 }

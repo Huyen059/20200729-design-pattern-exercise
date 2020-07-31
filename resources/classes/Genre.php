@@ -33,4 +33,12 @@ class Genre {
         return $this->genre;
     }
 
+    /**
+     * @return Book[]
+     */
+    public function getBooks(): array
+    {
+        return $this->books;
+    }
+
 }

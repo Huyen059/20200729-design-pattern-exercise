@@ -32,4 +32,13 @@ class Publisher {
     {
         return $this->publisher;
     }
+
+    /**
+     * @return Book[]
+     */
+    public function getBooks(): array
+    {
+        return $this->books;
+    }
+
 }
