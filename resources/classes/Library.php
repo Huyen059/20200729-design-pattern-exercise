@@ -55,13 +55,13 @@ class Library {
     }
 
     /**
-     * @param SearchBook $searchBook
+     * @param SearchBookCriteria $searchBook
      * @param string $searchCriterion
      * @return Book[]
+     * @throws Exception
      */
     public function searchBook(SearchBookCriteria $searchBook, string $searchCriterion): array
     {
-        // Todo: throw error when book not found
         $matchedBooks = $searchBook->searchBook($this, $searchCriterion);
         if(count($matchedBooks) === 0){
             throw new Exception('Book not found.');

@@ -19,7 +19,6 @@ class PartialBookSearch extends SearchBookCriteria {
                 $matchedBooks[] = $book;
             }
         }
-        $this->books = $matchedBooks;
         return $matchedBooks;
     }
 }

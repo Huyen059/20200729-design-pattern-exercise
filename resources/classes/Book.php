@@ -5,7 +5,6 @@ ini_set('display_startup_errors', "1");
 error_reporting(E_ALL);
 
 class Book {
-    // Todo: class Book requires string title, string author, object Genre, int pages, object Publisher, also set default state to OpenState
     private string $title, $author;
     private int $pages;
     private Genre $genre;

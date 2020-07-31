@@ -7,11 +7,6 @@ error_reporting(E_ALL);
 abstract class SearchBookCriteria
 {
     /**
-     * @var Book[]
-     */
-    protected array $books = [];
-
-    /**
      * SearchBook
      * @param Library $library
      * @param string $searchCriterion
