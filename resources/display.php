@@ -18,55 +18,88 @@ error_reporting(E_ALL);
     <title>Library</title>
 </head>
 <body>
+<header class="my-5">
+    <h1 class="text-center">Library</h1>
+</header>
+<div class="container">
+    <div class="d-flex flex-column align-items-center">
 
-<form method="post">
-    <label>
-        <input type="text" name="name" placeholder="Enter (partial) book title">
-    </label>
-    <button type="submit" name="submit">Search</button>
-</form>
+    <div>
+        <div class="mb-4">
+            <form method="post">
+                <div class="input-group mb-3">
+                    <input type="text" name="name" class="form-control" placeholder="Enter (partial) book title">
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-secondary" type="button" name="submit">Search</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="mb-4">
+            <form method="post">
+                <div class="input-group">
+                    <select class="custom-select" name="genre" id="inputGroupSelect04">
+                        <option disabled selected value="">Choose a genre</option>
 
-<form method="post">
-<label>Genre:
-    <select name="genre">
-        <option disabled selected value="">Choose a genre</option>
-        <?php
-        /**
-         * @var Library $library
-         */
-        foreach ($library->getGenres() as $genre) {
-            $option = '';
-            $option .= "<option value='{$genre->getGenre()}' ";
-            if(isset($_POST['genre']) && $_POST['genre'] === $genre->getGenre()) {
-                $option .= "selected";
-            }
-            $option .= ">".ucfirst($genre->getGenre())."</option>";
-            echo $option;
-        }
-        ?>
-    </select>
-</label>
-<button type="submit" name="submit">Search</button>
-</form>
+                        <?php
+                        /**
+                         * @var Library $library
+                         */
+                        foreach ($library->getGenres() as $genre) {
+                            $option = '';
+                            $option .= "<option value='{$genre->getGenre()}' ";
+                            if(isset($_POST['genre']) && $_POST['genre'] === $genre->getGenre()) {
+                                $option .= "selected";
+                            }
+                            $option .= ">".ucfirst($genre->getGenre())."</option>";
+                            echo $option;
+                        }
+                        ?>
+                    </select>
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-secondary" type="button" name="submit">Search</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="mb-4">
+            <form method="post">
+                <div class="input-group">
+                    <select class="custom-select" name="publisher" id="inputGroupSelect04">
+                        <option disabled selected value="">Choose a publisher</option>
 
-<form method="post">
-    <label>Publisher:
-        <select name="publisher">
-            <option disabled selected value="">Choose a publisher</option>
+                        <?php
+                        foreach ($library->getPublishers() as $publisher) {
+                            $option = "<option value=\"{$publisher->getPublisher()}\" ";
+                            if(isset($_POST['publisher']) && $_POST['publisher'] === $publisher->getPublisher()) {
+                                $option .= "selected";
+                            }
+                            $option .= ">". ucfirst($publisher->getPublisher()) . "</option>";
+                            echo $option;
+                        }
+                        ?>
+                    </select>
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-secondary" type="button" name="submit">Search</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+        <div class="my-5">
             <?php
-            foreach ($library->getPublishers() as $publisher) {
-                $option = "<option value=\"{$publisher->getPublisher()}\" ";
-                if(isset($_POST['publisher']) && $_POST['publisher'] === $publisher->getPublisher()) {
-                    $option .= "selected";
-                }
-                $option .= ">". ucfirst($publisher->getPublisher()) . "</option>";
-                echo $option;
-            }
+            echo $library->displayTotalPages();
             ?>
-        </select>
-    </label>
-    <button type="submit" name="submit">Search</button>
-</form>
+        </div>
 
+        <div class="row">
+            <?php
+            echo $library->displayBooks();
+            ?>
+        </div>
+
+    </div>
+</div>
 </body>
 </html>

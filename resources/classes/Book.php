@@ -52,4 +52,29 @@ class Book {
     {
         return $this->publisher;
     }
+
+    /**
+     * @return int
+     */
+    public function getPages(): int
+    {
+        return $this->pages;
+    }
+
+    public function displayBook(): string
+    {
+        $genre = ucfirst($this->genre->getGenre());
+        return "
+    <div class='col-sm-12 col-md-6 col-lg-3'>
+        <div class='card bg-light mb-3'>
+            <div class='card-header'>Author: {$this->author}</div>
+            <div class='card-body'>
+                <h5 class='card-title'>Title: {$this->title}</h5>
+                <p class='card-text'>Genre: {$genre}</p>
+                <p class='card-text'>Publisher: {$this->publisher->getPublisher()}</p>
+            </div>
+        </div>
+    </div>
+        ";
+    }
 }

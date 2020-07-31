@@ -11,6 +11,10 @@ class Library {
      */
     private array $books = [];
     /**
+     * @var Book[]
+     */
+    private array $matchedBooks = [];
+    /**
      * @var Genre[]
      */
     private array $genres = [];
@@ -57,16 +61,59 @@ class Library {
     /**
      * @param SearchBookCriteria $searchBook
      * @param string $searchCriterion
-     * @return Book[]
      * @throws Exception
      */
-    public function searchBook(SearchBookCriteria $searchBook, string $searchCriterion): array
+    public function searchBook(SearchBookCriteria $searchBook, string $searchCriterion): void
     {
         $matchedBooks = $searchBook->searchBook($this, $searchCriterion);
         if(count($matchedBooks) === 0){
             throw new Exception('Book not found.');
         }
 
-        return $matchedBooks;
+        $this->matchedBooks = $matchedBooks;
+    }
+
+    /**
+     * @param Book[] $books
+     * @return int
+     */
+    public function getTotalPages(array $books): int
+    {
+        $pages = 0;
+        foreach ($books as $book) {
+            $pages += $book->getPages();
+        }
+        return $pages;
+    }
+
+    public function displayTotalPages(): string
+    {
+        if(count($this->matchedBooks) !== 0) {
+            return "
+            <div><h5>Total number of pages for this search: {$this->getTotalPages($this->matchedBooks)}</h5></div>
+            ";
+        }
+
+        return "
+            <div><h5>Total number of pages in library: {$this->getTotalPages($this->books)}</h5></div>
+        ";
+    }
+
+    public function displayBooks(): string
+    {
+        $display = '';
+        if(count($this->matchedBooks) !== 0) {
+            $books = $this->matchedBooks;
+        } else {
+            $books = [];
+            $randomBookIndexes = array_rand($this->books, 10);
+            foreach ($randomBookIndexes as $randomBookIndex) {
+                $books[] = $this->books[$randomBookIndex];
+            }
+        }
+        foreach ($books as $book) {
+            $display .= $book->displayBook();
+        }
+        return $display;
     }
 }
