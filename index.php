@@ -7,6 +7,9 @@ error_reporting(E_ALL);
 session_start();
 
 const BOOK_FORMAT = 'json';
+const RESOURCES_BOOKS_CSV = 'resources/books.csv';
+const RESOURCES_BOOKS_JSON = 'resources/books.json';
+
 class BooksNotImportedException extends Exception {}
 
 require 'resources/classes/BookImporter.php';
@@ -26,8 +29,10 @@ if (isset($_SESSION['library'])) {
      * @var Library $library
      */
     $library = $_SESSION['library'];
+} else if(BOOK_FORMAT === 'json') {
+    $library = new Library(new BookImporterJson(RESOURCES_BOOKS_JSON));
 } else {
-    $library = new Library(new BookImporterCsv('resources/books.csv'));
+    $library = new Library(new BookImporterCsv(RESOURCES_BOOKS_CSV));
 }
 
 if (isset($_POST['name'])) {
