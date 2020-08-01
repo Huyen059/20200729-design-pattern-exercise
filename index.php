@@ -42,6 +42,7 @@ if (isset($_SESSION['library'])) {
     $library = new Library(new BookImporterCsv(RESOURCES_BOOKS_CSV));
 }
 
+$matchBooks = [];
 if (isset($_POST['name'])) {
     $name = htmlspecialchars(trim($_POST['name']));
     try {

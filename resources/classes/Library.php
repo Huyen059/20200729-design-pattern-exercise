@@ -4,7 +4,8 @@ ini_set('display_errors', "1");
 ini_set('display_startup_errors', "1");
 error_reporting(E_ALL);
 
-class Library {
+class Library
+{
     private string $path;
     /**
      * @var Book[]
@@ -61,16 +62,17 @@ class Library {
     /**
      * @param SearchBookCriteria $searchBook
      * @param string $searchCriterion
+     * @return Book[]
      * @throws Exception
      */
-    public function searchBook(SearchBookCriteria $searchBook, string $searchCriterion): void
+    public function searchBook(SearchBookCriteria $searchBook, string $searchCriterion): array
     {
         $matchedBooks = $searchBook->searchBook($this, $searchCriterion);
-        if(count($matchedBooks) === 0){
+        if (count($matchedBooks) === 0) {
             throw new Exception('Book not found.');
         }
 
-        $this->matchedBooks = $matchedBooks;
+        return $matchedBooks;
     }
 
     /**
@@ -86,34 +88,36 @@ class Library {
         return $pages;
     }
 
-    public function displayTotalPages(): string
+    /**
+     * @param Book[]
+     * @return int
+     */
+    public function displayTotalPages(array $books): int
     {
-        if(count($this->matchedBooks) !== 0) {
-            return "
-            <div><h5>Total number of pages for this search: {$this->getTotalPages($this->matchedBooks)}</h5></div>
-            ";
-        }
-
-        return "
-            <div><h5>Total number of pages in library: {$this->getTotalPages($this->books)}</h5></div>
-        ";
+        return $this->getTotalPages($books);
     }
 
-    public function displayBooks(): string
+    /**
+     * @param Book[] $books
+     * @return string
+     */
+    public function displayBooks(array $books): string
     {
         $display = '';
-        if(count($this->matchedBooks) !== 0) {
-            $books = $this->matchedBooks;
-        } else {
-            $books = [];
-            $randomBookIndexes = array_rand($this->books, 10);
-            foreach ($randomBookIndexes as $randomBookIndex) {
-                $books[] = $this->books[$randomBookIndex];
-            }
-        }
         foreach ($books as $book) {
             $display .= $book->displayBook();
         }
         return $display;
+    }
+
+    public function displayRandomBooks(): string
+    {
+        $books = [];
+        $randomBookIndexes = array_rand($this->books, 10);
+        foreach ($randomBookIndexes as $randomBookIndex) {
+            $books[] = $this->books[$randomBookIndex];
+        }
+
+        return $this->displayBooks($books);
     }
 }

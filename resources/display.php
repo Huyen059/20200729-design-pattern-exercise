@@ -89,13 +89,23 @@ error_reporting(E_ALL);
 
         <div class="my-5">
             <?php
-            echo $library->displayTotalPages();
+            if(!empty($matchBooks)){
+                echo "<div><h5>Total number of pages of this search: {$library->displayTotalPages($matchBooks)}</h5></div>";
+            } else {
+                echo "<div><h5>Total number of pages in this library: {$library->displayTotalPages($library->getBooks())}</h5></div>";
+            }
             ?>
         </div>
 
         <div class="row">
             <?php
-            echo $library->displayBooks();
+            if(!empty($matchBooks)){
+                echo "<h3 class='mx-auto mb-5'>Search results:</h3>";
+                echo $library->displayBooks($matchBooks);
+            } else {
+                echo "<h3 class='mx-auto mb-5'>Some books in our library:</h3>";
+                echo $library->displayRandomBooks();
+            }
             ?>
         </div>
 
