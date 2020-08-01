@@ -72,7 +72,7 @@ class Book {
     public function displayBook(): string
     {
         $genre = ucfirst($this->genre->getGenre());
-        $display = "
+        $open = "
                     <div class='col-sm-12 col-md-6 col-lg-3'>
                         <div class='card bg-light mb-3'>
                             <div class='card-header'>Author: {$this->author}</div>
@@ -81,32 +81,32 @@ class Book {
                                 <p class='card-text'>Genre: {$genre}</p>
                                 <p class='card-text'>Publisher: {$this->publisher->getPublisher()}</p>
                     ";
-
+        $end = "</div></div></div>";
         $validTransactions = $this->getContext()->getState()->validTransactions();
         if (empty($validTransactions)) {
-            $display .= "</div></div></div>";
+            $display = $open . $end;
             return $display;
         }
 
         $title = urlencode($this->title);
-        $display .= "<form method='post'>";
+        $display = $open . "<form method='post'>";
         foreach ($validTransactions as $item) {
             switch ($item) {
                 case OpenState::class:
-                    $display .= "<button name='return' value='{$title}' type='submit'>Return</button>";
+                    $display .= "<button class='btn btn-info mr-3' name='return' value='{$title}' type='submit'>Return</button>";
                     break;
                 case LentState::class:
-                    $display .= "<button name='borrow' value='{$title}' type='submit'>Borrow</button>";
+                    $display .= "<button class='btn btn-info mr-3' name='borrow' value='{$title}' type='submit'>Borrow</button>";
                     break;
                 case LostState::class:
-                    $display .= "<button name='lost' value='{$title}' type='submit'>Report Lost</button>";
+                    $display .= "<button class='btn btn-info mr-3' name='lost' value='{$title}' type='submit'>Report Lost</button>";
                     break;
                 case SoldState::class:
-                    $display .= "<button name='buy' value='{$title}' type='submit'>Buy</button>";
+                    $display .= "<button class='btn btn-info mr-3' name='buy' value='{$title}' type='submit'>Buy</button>";
                     break;
             }
         }
-        $display .= "</form></div></div></div>";
+        $display .= "</form>" . $end;
         return $display;
     }
 }
