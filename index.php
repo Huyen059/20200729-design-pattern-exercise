@@ -44,6 +44,9 @@ if (isset($_SESSION['library'])) {
     $_SESSION['library'] = $library;
 }
 
+$library->manageOvertimeBook();
+
+
 $matchBooks = [];
 if (isset($_POST['name'])) {
     $name = htmlspecialchars(trim($_POST['name']));
@@ -107,7 +110,6 @@ if (isset($_POST[Book::RETURN])){
     }
     $books[0]->getContext()->return();
 }
-
 
 require 'resources/display.php';
 

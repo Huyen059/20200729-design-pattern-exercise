@@ -9,6 +9,7 @@ class OpenState extends State {
     public function borrowBook(): void
     {
         $this->context->transitionTo(new LentState());
+        $this->context->getState()->setTimer();
     }
 
     public function buyBook(): void

@@ -93,8 +93,7 @@ class Book {
         $end = "</div></div></div>";
         $validTransactions = $this->getContext()->getState()->validTransactions();
         if (empty($validTransactions)) {
-            $display = $open . $end;
-            return $display;
+            return $open . $end;
         }
 
         $title = urlencode($this->title);
@@ -115,7 +114,11 @@ class Book {
                     break;
             }
         }
-        $display .= "</form>" . $end;
-        return $display;
+        if($state instanceof OvertimeState) {
+            $display .= "<div class='alert alert-danger mt-4' role='alert'>
+                            Your book is overdue!
+                        </div>";
+        }
+        return $display . "</form>" . $end;
     }
 }

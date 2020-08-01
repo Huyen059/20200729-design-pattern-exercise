@@ -122,4 +122,20 @@ class Library
 
         return $this->displayBooks($books);
     }
+
+    public function manageOvertimeBook(): void
+    {
+        foreach ($this->books as $book) {
+            $state = $book->getContext()->getState();
+            if ($state instanceof LentState) {
+                $now = new DateTime();
+                $expire = $state->getExpire();
+                $period = $now->getTimestamp() - $expire->getTimestamp();
+                if ($period < 0) {
+                    continue;
+                }
+                $book->getContext()->setOvertime();
+            }
+        }
+    }
 }
