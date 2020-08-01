@@ -6,7 +6,6 @@ error_reporting(E_ALL);
 
 class Library
 {
-    private string $path;
     /**
      * @var Book[]
      */
