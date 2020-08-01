@@ -10,19 +10,15 @@ class Library
     /**
      * @var Book[]
      */
-    private array $books = [];
-    /**
-     * @var Book[]
-     */
-    private array $matchedBooks = [];
+    private array $books;
     /**
      * @var Genre[]
      */
-    private array $genres = [];
+    private array $genres;
     /**
      * @var Publisher[]
      */
-    private array $publishers = [];
+    private array $publishers;
 
     /**
      * Library constructor.

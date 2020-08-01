@@ -4,7 +4,6 @@ ini_set('display_errors', "1");
 ini_set('display_startup_errors', "1");
 error_reporting(E_ALL);
 
-session_start();
 
 const BOOK_FORMAT = 'json';
 const RESOURCES_BOOKS_CSV = 'resources/books.csv';
@@ -30,6 +29,7 @@ require 'resources/classes/OvertimeState.php';
 require 'resources/classes/LostState.php';
 require 'resources/classes/SoldState.php';
 require 'resources/classes/Library.php';
+session_start();
 
 if (isset($_SESSION['library'])) {
     /**
@@ -38,8 +38,10 @@ if (isset($_SESSION['library'])) {
     $library = $_SESSION['library'];
 } else if(BOOK_FORMAT === 'json') {
     $library = new Library(new BookImporterJson(RESOURCES_BOOKS_JSON));
+    $_SESSION['library'] = $library;
 } else {
     $library = new Library(new BookImporterCsv(RESOURCES_BOOKS_CSV));
+    $_SESSION['library'] = $library;
 }
 
 $matchBooks = [];
