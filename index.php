@@ -22,6 +22,13 @@ require 'resources/classes/SearchBookCriteria.php';
 require 'resources/classes/PartialBookSearch.php';
 require 'resources/classes/GenreSearch.php';
 require 'resources/classes/PublisherSearch.php';
+require 'resources/classes/Context.php';
+require 'resources/classes/State.php';
+require 'resources/classes/OpenState.php';
+require 'resources/classes/LentState.php';
+require 'resources/classes/OvertimeState.php';
+require 'resources/classes/LostState.php';
+require 'resources/classes/SoldState.php';
 require 'resources/classes/Library.php';
 
 if (isset($_SESSION['library'])) {

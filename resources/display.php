@@ -30,7 +30,7 @@ error_reporting(E_ALL);
                 <div class="input-group mb-3">
                     <input type="text" name="name" class="form-control" placeholder="Enter (partial) book title">
                     <div class="input-group-append">
-                        <button class="btn btn-outline-secondary" type="button" name="submit">Search</button>
+                        <button class="btn btn-outline-secondary" type="submit" name="submit">Search</button>
                     </div>
                 </div>
             </form>
@@ -57,7 +57,7 @@ error_reporting(E_ALL);
                         ?>
                     </select>
                     <div class="input-group-append">
-                        <button class="btn btn-outline-secondary" type="button" name="submit">Search</button>
+                        <button class="btn btn-outline-secondary" type="submit" name="submit">Search</button>
                     </div>
                 </div>
             </form>
@@ -80,7 +80,7 @@ error_reporting(E_ALL);
                         ?>
                     </select>
                     <div class="input-group-append">
-                        <button class="btn btn-outline-secondary" type="button" name="submit">Search</button>
+                        <button class="btn btn-outline-secondary" type="submit" name="submit">Search</button>
                     </div>
                 </div>
             </form>
