@@ -14,7 +14,7 @@ class PublisherSearch extends SearchBookCriteria
     public function searchBook(Library $library, string $searchCriterion): array
     {
         foreach ($library->getPublishers() as $publisher) {
-            if($publisher->getPublisher() === $searchCriterion) {
+            if(htmlspecialchars($publisher->getPublisher()) === $searchCriterion) {
                 return $publisher->getBooks();
             }
         }

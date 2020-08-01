@@ -15,7 +15,7 @@ class PartialBookSearch extends SearchBookCriteria {
     {
         $matchedBooks = [];
         foreach($library->getBooks() as $book) {
-            if(stripos($book->getTitle(), $searchCriterion) !== false) {
+            if(stripos(htmlspecialchars($book->getTitle()), $searchCriterion) !== false) {
                 $matchedBooks[] = $book;
             }
         }

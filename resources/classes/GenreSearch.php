@@ -14,7 +14,7 @@ class GenreSearch extends SearchBookCriteria
     public function searchBook(Library $library, string $searchCriterion): array
     {
         foreach ($library->getGenres() as $genre) {
-            if($genre->getGenre() === $searchCriterion) {
+            if(htmlspecialchars($genre->getGenre()) === $searchCriterion) {
                 return $genre->getBooks();
             }
         }

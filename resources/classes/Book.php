@@ -75,6 +75,11 @@ class Book {
 
     public function displayBook(): string
     {
+        $state = $this->getContext()->getState();
+        if($state instanceof LostState || $state instanceof SoldState) {
+            return '';
+        }
+
         $genre = ucfirst($this->genre->getGenre());
         $open = "
                     <div class='col-sm-12 col-md-6 col-lg-3'>

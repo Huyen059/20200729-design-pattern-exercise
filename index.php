@@ -72,7 +72,41 @@ if (isset($_POST['publisher'])){
     }
 }
 
+if (isset($_POST[Book::BORROW])){
+    $title = htmlspecialchars(trim(urldecode($_POST[Book::BORROW])));
+    $books = $library->searchBook(new PartialBookSearch(), $title);
+    if(count($books) > 1) {
+        throw new Exception("More than one books have the same title.");
+    }
+    $books[0]->getContext()->borrow();
+}
 
+if (isset($_POST[Book::BUY])){
+    $title = htmlspecialchars(trim(urldecode($_POST[Book::BUY])));
+    $books = $library->searchBook(new PartialBookSearch(), $title);
+    if(count($books) > 1) {
+        throw new Exception("More than one books have the same title.");
+    }
+    $books[0]->getContext()->buy();
+}
+
+if (isset($_POST[Book::LOST])){
+    $title = htmlspecialchars(trim(urldecode($_POST[Book::LOST])));
+    $books = $library->searchBook(new PartialBookSearch(), $title);
+    if(count($books) > 1) {
+        throw new Exception("More than one books have the same title.");
+    }
+    $books[0]->getContext()->reportLost();
+}
+
+if (isset($_POST[Book::RETURN])){
+    $title = htmlspecialchars(trim(urldecode($_POST[Book::RETURN])));
+    $books = $library->searchBook(new PartialBookSearch(), $title);
+    if(count($books) > 1) {
+        throw new Exception("More than one books have the same title.");
+    }
+    $books[0]->getContext()->return();
+}
 
 
 require 'resources/display.php';

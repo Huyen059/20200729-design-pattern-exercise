@@ -78,7 +78,13 @@ class Library
     public function getTotalPages(array $books): int
     {
         $pages = 0;
+
+
         foreach ($books as $book) {
+            $state = $book->getContext()->getState();
+            if($state instanceof LostState || $state instanceof SoldState) {
+                continue;
+            }
             $pages += $book->getPages();
         }
         return $pages;
