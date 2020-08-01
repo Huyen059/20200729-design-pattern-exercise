@@ -5,6 +5,10 @@ ini_set('display_startup_errors', "1");
 error_reporting(E_ALL);
 
 class Book {
+    public const RETURN = 'return';
+    public const BORROW = 'borrow';
+    public const LOST = 'lost';
+    public const BUY = 'buy';
     private string $title, $author;
     private int $pages;
     private Genre $genre;
@@ -93,16 +97,16 @@ class Book {
         foreach ($validTransactions as $item) {
             switch ($item) {
                 case OpenState::class:
-                    $display .= "<button class='btn btn-info mr-3' name='return' value='{$title}' type='submit'>Return</button>";
+                    $display .= "<button class='btn btn-info mr-3' name='".self::RETURN."' value='{$title}' type='submit'>Return</button>";
                     break;
                 case LentState::class:
-                    $display .= "<button class='btn btn-info mr-3' name='borrow' value='{$title}' type='submit'>Borrow</button>";
+                    $display .= "<button class='btn btn-info mr-3' name='".self::BORROW."' value='{$title}' type='submit'>Borrow</button>";
                     break;
                 case LostState::class:
-                    $display .= "<button class='btn btn-info mr-3' name='lost' value='{$title}' type='submit'>Report Lost</button>";
+                    $display .= "<button class='btn btn-info mr-3' name='".self::LOST."' value='{$title}' type='submit'>Report Lost</button>";
                     break;
                 case SoldState::class:
-                    $display .= "<button class='btn btn-info mr-3' name='buy' value='{$title}' type='submit'>Buy</button>";
+                    $display .= "<button class='btn btn-info mr-3' name='".self::BUY."' value='{$title}' type='submit'>Buy</button>";
                     break;
             }
         }

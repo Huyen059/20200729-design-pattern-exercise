@@ -70,5 +70,7 @@ if (isset($_POST['publisher'])){
 }
 
 
+
+
 require 'resources/display.php';
 
